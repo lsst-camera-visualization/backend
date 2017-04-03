@@ -15,7 +15,7 @@ def task(filename, task_params):
 			ret =  histogram(fits_object, region_type, value, numBins, _min, _max)
 			if ret is None:
 				ret = "Region type is not recognized."
-			return {"data":ret.tolist()}, None
+			return {"data":ret.tolist(), "title":"Graph Pixel", "xAxis":"Pixel Value", "yAxis":"Quantity"}, None
 	except Exception as e:
 		return ["Error when computing histogram."], e
 # Testing
