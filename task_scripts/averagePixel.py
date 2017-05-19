@@ -13,6 +13,7 @@ def task(filename, task_params):
 
     hdulist = fits.open(filename)
     region = hdulist[0].data
+    task_params = task_params['region']
     region_type, value = task_params['type'], task_params['value']
 
     if (region_type=='rect'):
