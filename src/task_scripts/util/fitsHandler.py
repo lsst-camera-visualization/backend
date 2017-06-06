@@ -52,7 +52,7 @@ class fitsHandler:
             if (self.isMulti):
                 self.imageHDUs = [elem for elem in self.hduList if type(elem).__name__ == 'ImageHDU']
             else:
-                self.imageHDUs = (self.hduList)[0] # primary header
+                self.imageHDUs = self.hduList # primary header
         except Exception as e:
             print("Cannot open the FITS file.")
             raise
@@ -161,6 +161,35 @@ class fitsHandler:
             boundaryArray.append(ampInfo)
 
         return {"type": "CCD-OVERSCAN",
+                "data": boundaryArray}
+
+    # Hard-coded
+    # TODO: hierarchical structure!
+    def getHeaderRaft(self):
+
+        def _addOffset(region, xOffset, yOffset):
+            return {"x1": region["x1"] + xOffset,
+                    "x2": region["x2"] + xOffset,
+                    "y1": region["y1"] + yOffset,
+                    "y2": region["y2"] + yOffset}
+
+        def _format(region):
+            # Amplifier boundary should always be "rect"
+            return {"type": "rect", "data": region}
+
+        primaryHeader = ((self.imageHDUs)[0]).header
+        boundaryArray = []
+        for raftX in range(3):
+            for raftY in range(3):
+                for segmentX in range(8):
+                    for segmentY in range(2):
+                        keyword = "HIERARCH R99 S"+ str(raftY) + str(raftX) + " SEGMENT" + str(segmentY) + str(segmentX) + " DETSEC"
+                        ampDataSection = _convertHeaderRange(primaryHeader[keyword])
+                        ampInfo = {}
+                        ampInfo["Name"] = "S"+ str(raftY) + str(raftX) + " SEGMENT" + str(segmentY) + str(segmentX)
+                        ampInfo["data"] = _format(_addOffset(ampDataSection, raftX*(4072+20), raftY*(4000+20)))
+                        boundaryArray.append(ampInfo)
+        return {"type": "CCD",
                 "data": boundaryArray}
 
     def getHeaderJSON(self):

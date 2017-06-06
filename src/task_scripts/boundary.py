@@ -9,7 +9,7 @@ def task(filename, task_params):
     '''
 
     with fitsHandler(filename) as fitsImage:
-        headerInfo = fitsImage.getHeader()
+        headerInfo = fitsImage.getHeaderRaft()
 
     return headerInfo, None
 
